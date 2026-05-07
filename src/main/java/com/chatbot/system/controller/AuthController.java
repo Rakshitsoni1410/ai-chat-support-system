@@ -7,13 +7,18 @@ import com.chatbot.system.dto.LoginRequest;
 import com.chatbot.system.dto.RegisterRequest;
 import com.chatbot.system.model.User;
 import com.chatbot.system.service.UserService;
+import com.chatbot.system.util.JwtUtil;
 
 @RestController
 @RequestMapping("/api/auth")
+@CrossOrigin("*")
 public class AuthController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
     // =========================
     // REGISTER API
@@ -43,7 +48,10 @@ public class AuthController {
         );
 
         if (isValid) {
-            return "Login Successful";
+
+            return jwtUtil.generateToken(
+                    request.getEmail()
+            );
         }
 
         return "Invalid Email or Password";
