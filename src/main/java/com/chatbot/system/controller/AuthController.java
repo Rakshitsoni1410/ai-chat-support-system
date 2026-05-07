@@ -9,6 +9,9 @@ import com.chatbot.system.model.User;
 import com.chatbot.system.service.UserService;
 import com.chatbot.system.util.JwtUtil;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin("*")
@@ -20,14 +23,11 @@ public class AuthController {
     @Autowired
     private JwtUtil jwtUtil;
 
-    // =========================
-    // REGISTER API
-    // =========================
+    // REGISTER
     @PostMapping("/register")
     public User register(@RequestBody RegisterRequest request) {
 
         User user = new User();
-
         user.setName(request.getName());
         user.setEmail(request.getEmail());
         user.setPassword(request.getPassword());
@@ -36,24 +36,24 @@ public class AuthController {
         return userService.registerUser(user);
     }
 
-    // =========================
-    // LOGIN API
-    // =========================
+    // LOGIN
     @PostMapping("/login")
-    public String login(@RequestBody LoginRequest request) {
+    public Map<String, String> login(@RequestBody LoginRequest request) {
 
         boolean isValid = userService.loginUser(
                 request.getEmail(),
                 request.getPassword()
         );
 
-        if (isValid) {
+        Map<String, String> response = new HashMap<>();
 
-            return jwtUtil.generateToken(
-                    request.getEmail()
-            );
+        if (isValid) {
+            String token = jwtUtil.generateToken(request.getEmail());
+            response.put("token", token);
+            return response;
         }
 
-        return "Invalid Email or Password";
+        response.put("error", "Invalid credentials");
+        return response;
     }
 }

@@ -19,46 +19,47 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public class JwtFilter extends OncePerRequestFilter {
 
-    @Autowired
-    private JwtUtil jwtUtil;
+        @Autowired
+        private JwtUtil jwtUtil;
 
-    @Override
-    protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain
-    ) throws ServletException, IOException {
+        @Override
+        protected void doFilterInternal(
+                        HttpServletRequest request,
+                        HttpServletResponse response,
+                        FilterChain filterChain) throws ServletException, IOException {
 
-        String authHeader =
-                request.getHeader("Authorization");
+                String authHeader = request.getHeader("Authorization");
 
-        String token = null;
+                if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                        filterChain.doFilter(request, response);
+                        return;
+                }
 
-        if (authHeader != null &&
-                authHeader.startsWith("Bearer ")) {
+                String token = authHeader.substring(7);
 
-            token = authHeader.substring(7);
+                // 🚨 FIRST validate token
+                if (!jwtUtil.validateToken(token)) {
+                        filterChain.doFilter(request, response);
+                        return;
+                }
 
-            if (jwtUtil.validateToken(token)) {
+                String username = jwtUtil.extractUsername(token);
 
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(
-                                null,
-                                null,
-                                null
-                        );
+                // 🚨 SET AUTH ONLY IF NOT ALREADY SET
+                if (username != null &&
+                                SecurityContextHolder.getContext().getAuthentication() == null) {
 
-                authentication.setDetails(
-                        new WebAuthenticationDetailsSource()
-                                .buildDetails(request)
-                );
+                        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                                        username,
+                                        null,
+                                        new java.util.ArrayList<>());
 
-                SecurityContextHolder
-                        .getContext()
-                        .setAuthentication(authentication);
-            }
+                        authToken.setDetails(
+                                        new WebAuthenticationDetailsSource().buildDetails(request));
+
+                        SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
+
+                filterChain.doFilter(request, response);
         }
-
-        filterChain.doFilter(request, response);
-    }
 }
