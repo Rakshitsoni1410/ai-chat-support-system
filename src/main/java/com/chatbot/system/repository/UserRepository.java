@@ -1,10 +1,9 @@
 package com.chatbot.system.repository;
 
-import java.util.Optional;
-
+import com.chatbot.system.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.chatbot.system.model.User;
+import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 

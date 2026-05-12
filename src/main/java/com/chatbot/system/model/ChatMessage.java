@@ -1,23 +1,9 @@
 package com.chatbot.system.model;
 
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
 @Entity
-@Table(name = "chat_messages")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 public class ChatMessage {
 
     @Id
@@ -25,10 +11,21 @@ public class ChatMessage {
     private Long id;
 
     private Long userId;
-
     private String message;
-
     private String response;
-
     private LocalDateTime timestamp;
+
+    public Long getId() { return id; }
+
+    public Long getUserId() { return userId; }
+    public void setUserId(Long userId) { this.userId = userId; }
+
+    public String getMessage() { return message; }
+    public void setMessage(String message) { this.message = message; }
+
+    public String getResponse() { return response; }
+    public void setResponse(String response) { this.response = response; }
+
+    public LocalDateTime getTimestamp() { return timestamp; }
+    public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }
 }
